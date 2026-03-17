@@ -1,0 +1,10 @@
+{
+  "jsPlugins": [
+    "./.rules/taro-app-config-validator.ts",
+    "./.rules/check-image-import-plugin.ts"
+  ],
+  "rules": {
+    "taro-app-config-validator/taro-app-config-validator": "error",
+    "check-image-exists/no-missing-image": "error"
+  }
+}
