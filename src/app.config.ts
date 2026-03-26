@@ -1,29 +1,44 @@
-const pages = ['pages/home/index', 'pages/login/index']
+const pages = [
+  'pages/home/index',
+  'pages/agent/index',
+  'pages/profile/index',
+  'pages/login/index',
+  'pages/activity-detail/index'
+]
 
 //  To fully leverage TypeScript's type safety and ensure its correctness, always enclose the configuration object within the global defineAppConfig helper function.
 export default defineAppConfig({
   pages,
   tabBar: {
-    // List requires at least 2 items and at most 5 items
+    color: '#8B92A8',
+    selectedColor: '#3B82F6',
+    backgroundColor: '#FFFFFF',
+    borderStyle: 'white',
     list: [
       {
         pagePath: 'pages/home/index',
-        text: 'Home'
+        text: '首页',
+        iconPath: './assets/icons/home_unselected.png',
+        selectedIconPath: './assets/icons/home_selected.png'
+      },
+      {
+        pagePath: 'pages/agent/index',
+        text: 'AI助手',
+        iconPath: './assets/icons/agent_unselected.png',
+        selectedIconPath: './assets/icons/agent_selected.png'
+      },
+      {
+        pagePath: 'pages/profile/index',
+        text: '我的',
+        iconPath: './assets/icons/profile_unselected.png',
+        selectedIconPath: './assets/icons/profile_selected.png'
       }
-      // {
-      //     pagePath: 'pages/welcome/index',
-      //     text: 'welcome'
-      // }
     ]
   },
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fff',
-    navigationBarTitleText: 'WeChat',
+    navigationBarTitleText: 'AI 羊毛雷达',
     navigationBarTextStyle: 'black'
-  },
-  // Location APIs: Use 'getFuzzyLocation' for fuzzy location (cannot combine with precise APIs),
-  // or use precise APIs: 'getLocation', 'onLocationChange', 'startLocationUpdate', 'chooseLocation', 'choosePoi', 'chooseAddress'
-  // Background location: 'startLocationUpdateBackground'. Other values are strictly prohibited.
-  // requiredPrivateInfos: []
+  }
 })
