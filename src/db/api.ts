@@ -237,3 +237,28 @@ export async function deleteChatHistory(userId: string, chatId: string) {
 
   return {error: null}
 }
+
+// ==================== AI 对话相关API ====================
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+/**
+ * 调用 AI 对话 Edge Function
+ * @param message 用户当前消息
+ * @param history 多轮对话历史（最近若干条）
+ */
+export async function callAiChat(message: string, history: ChatMessage[]) {
+  const {data, error} = await supabase.functions.invoke('ai-chat', {
+    body: {message, history}
+  })
+
+  if (error) {
+    console.error('AI对话调用失败:', error)
+    return {reply: null, error}
+  }
+
+  return {reply: (data as {reply: string}).reply ?? null, error: null}
+}
