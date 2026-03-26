@@ -15,6 +15,7 @@ function extractKeywords(text: string): string[] {
     .split(/[\s，。？！、；：""''（）【】\.,?!;:()\[\]]+/)
     .map(w => w.trim())
     .filter(w => w.length >= 2 && !STOP_WORDS.has(w))
+    .map(w => w.replace(/%/g, '\\%').replace(/_/g, '\\_'))
     .slice(0, 5)
 }
 
@@ -26,12 +27,17 @@ async function searchActivities(keyword: string) {
     .map(kw => `title.ilike.%${kw}%,platform_name.ilike.%${kw}%,short_description.ilike.%${kw}%`)
     .join(',')
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('activities')
     .select('title, platform_name, short_description, end_time, activity_type')
     .or(orConditions)
     .eq('is_active', true)
     .limit(5)
+
+  if (error) {
+    console.error('searchActivities error:', error)
+    return []
+  }
 
   const seen = new Set<string>()
   return (data || []).filter(a => {
