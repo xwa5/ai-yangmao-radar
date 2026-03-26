@@ -106,9 +106,3 @@ e3e9090 feat: Agent 页接入真实 Claude AI，支持多轮对话
   ```
 - [ ] **填充活动数据**：数据库已有表结构，需录入真实的 AI 平台优惠活动数据
 
-### 🟢 后续优化（非阻塞）
-
-- [ ] 微信登录对接（已有 `wechat_miniapp_login` Edge Function，需配置 AppID/AppSecret）
-- [ ] 活动数据自动抓取/更新机制
-- [ ] AI 对话流式输出（当前为等待完整响应）
-- [ ] Edge Function 限流防滥用（当前依赖 Supabase 平台级限流）

@@ -1,16 +1,11 @@
 import { createClient } from 'jsr:@supabase/supabase-js'
-import Anthropic from 'npm:@anthropic-ai/sdk'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const ANTHROPIC_AUTH_TOKEN = Deno.env.get('ANTHROPIC_AUTH_TOKEN')!
-const ANTHROPIC_BASE_URL = Deno.env.get('ANTHROPIC_BASE_URL')
+const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY')!
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-const anthropic = new Anthropic({
-  apiKey: ANTHROPIC_AUTH_TOKEN,
-  ...(ANTHROPIC_BASE_URL ? { baseURL: ANTHROPIC_BASE_URL } : {}),
-})
 
 const STOP_WORDS = new Set(['的', '了', '有', '什么', '哪些', '怎么', '如何', '是', '吗', '呢', '啊', '吧', '在', '和', '与', '或', '我', '你', '他', '她', '它', '我们', '你们', '他们'])
 
@@ -51,10 +46,10 @@ async function searchActivities(keyword: string) {
   })
 }
 
-function validateHistory(history: unknown[]): Anthropic.MessageParam[] {
+function validateHistory(history: unknown[]): { role: string; content: string }[] {
   if (!Array.isArray(history)) return []
 
-  const valid: Anthropic.MessageParam[] = []
+  const valid: { role: string; content: string }[] = []
   for (const item of history) {
     if (
       typeof item !== 'object' ||
@@ -113,17 +108,30 @@ Deno.serve(async (req) => {
 - 如需补充，可结合你的训练知识
 - 使用中文回答${activitiesText}`
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        ...validHistory,
-        { role: 'user', content: trimmedMessage },
-      ],
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...validHistory,
+          { role: 'user', content: trimmedMessage },
+        ],
+        max_tokens: 1024,
+      }),
     })
-
-    const reply = response.content.find(b => b.type === 'text')?.text ?? '抱歉，我无法生成回答，请稍后重试。'
+    const json = await res.json()
+    console.log('OpenRouter status:', res.status, 'response:', JSON.stringify(json))
+    if (!json.choices?.[0]?.message?.content) {
+      const errMsg = json.error?.message ?? JSON.stringify(json)
+      console.error('OpenRouter error:', errMsg)
+      return jsonResponse({ error: `AI调用失败：${errMsg}`, code: 'OPENROUTER_ERROR' }, 500)
+    }
+    const reply = json.choices[0].message.content
 
     return jsonResponse({ reply })
   } catch (error) {
