@@ -199,7 +199,7 @@ export default function ActivityDetail() {
                 <span>活动详情</span>
               </h2>
               <p className="text-lg text-foreground leading-relaxed whitespace-pre-wrap">
-                {activity.detailed_description}
+                {activity.detailed_description?.replace(/\\n/g, '\n')}
               </p>
             </div>
 
@@ -210,7 +210,7 @@ export default function ActivityDetail() {
                 <span>参与方式</span>
               </h2>
               <p className="text-lg text-foreground leading-relaxed whitespace-pre-wrap">
-                {activity.participation_steps}
+                {activity.participation_steps?.replace(/\\n/g, '\n')}
               </p>
             </div>
 
