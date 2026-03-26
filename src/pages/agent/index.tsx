@@ -56,11 +56,13 @@ export default function Agent() {
       }
       setMessages((prev) => [...prev, agentMsg])
 
-      historyRef.current = [
-        ...historyRef.current,
-        {role: 'user' as const, content: userMessage},
-        {role: 'assistant' as const, content: agentResponse}
-      ].slice(-20)
+      if (reply) {
+        historyRef.current = [
+          ...historyRef.current,
+          {role: 'user' as const, content: userMessage},
+          {role: 'assistant' as const, content: reply}
+        ].slice(-20)
+      }
 
       if (user) {
         saveChatHistory(user.id, userMessage, agentResponse).catch(() => {})
