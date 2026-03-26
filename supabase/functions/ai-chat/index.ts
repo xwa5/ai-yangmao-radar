@@ -3,10 +3,14 @@ import Anthropic from 'npm:@anthropic-ai/sdk'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!
+const ANTHROPIC_AUTH_TOKEN = Deno.env.get('ANTHROPIC_AUTH_TOKEN')!
+const ANTHROPIC_BASE_URL = Deno.env.get('ANTHROPIC_BASE_URL')
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY })
+const anthropic = new Anthropic({
+  apiKey: ANTHROPIC_AUTH_TOKEN,
+  ...(ANTHROPIC_BASE_URL ? { baseURL: ANTHROPIC_BASE_URL } : {}),
+})
 
 const STOP_WORDS = new Set(['的', '了', '有', '什么', '哪些', '怎么', '如何', '是', '吗', '呢', '啊', '吧', '在', '和', '与', '或', '我', '你', '他', '她', '它', '我们', '你们', '他们'])
 
@@ -110,7 +114,7 @@ Deno.serve(async (req) => {
 - 使用中文回答${activitiesText}`
 
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       system: systemPrompt,
       messages: [
